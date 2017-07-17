@@ -8,7 +8,7 @@ class Scene
 {
 public:
     void ReadData(std::istream& dataStream);
-    void WriteData(std::ostream& dataStream) const;
+    void WriteData(std::ostream& dataStream);
 private:
     House house;
 };

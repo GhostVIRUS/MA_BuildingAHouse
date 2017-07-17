@@ -1,24 +1,32 @@
 #include "Wall.h"
 
 Wall::Wall(const Point2D &start, const Point2D &end, double h)
-    : startPoint(start), endPoint(end), height(h)
+    : startPoint(start), endPoint(end), height(h), needsUpdate(true)
 {}
 
 void Wall::AddHole(double left, double right, double top, double bottom)
 {
     holes.push_back(HolePosition(left, right, top, bottom));
+    needsUpdate = true;
 }
 
-std::vector<Polygon> Wall::GetPolygonMesh() const
+const std::vector<Polygon>& Wall::GetPolygonMesh()
 {
-    std::vector<Polygon> mesh;
-    mesh.push_back(Polygon());
-    mesh[0].points.push_back(Point3D(startPoint, 0));
-    mesh[0].points.push_back(Point3D(startPoint, height));
-    mesh[0].points.push_back(Point3D(endPoint, height));
-    mesh[0].points.push_back(Point3D(endPoint, 0));
+    updateOutputMesh();
+    return outputMesh;
+}
 
-    return mesh;
+void Wall::updateOutputMesh()
+{
+    if (!needsUpdate)
+        return;
+    outputMesh.clear();
+    outputMesh.push_back(Polygon());
+    outputMesh[0].points.push_back(Point3D(startPoint, 0));
+    outputMesh[0].points.push_back(Point3D(startPoint, height));
+    outputMesh[0].points.push_back(Point3D(endPoint, height));
+    outputMesh[0].points.push_back(Point3D(endPoint, 0));
+    needsUpdate = false;
 }
 
 Wall::HolePosition::HolePosition(double l, double r, double t, double b)

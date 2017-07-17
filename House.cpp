@@ -8,16 +8,32 @@ void House::AddPoint(double x, double y)
 void House::AddWall(int start, int end)
 {
     walls.push_back(Wall(inputPoints[start-1], inputPoints[end-1], height));
+    needsUpdate = true;
 }
 
-std::vector<Polygon> House::GetPolygonMesh() const // I feel like this design sucks
+void House::AddHole(double left, double right, double top, double bottom)
 {
-    std::vector<Polygon> mesh;
-    for (const auto &wall : walls)
+    walls.end()->AddHole(left, right, top, bottom);
+    needsUpdate = true;
+}
+
+const std::vector<Polygon>& House::GetPolygonMesh() // I feel like this design sucks
+{
+    updateOutputMesh();
+    return outputMesh;
+}
+
+void House::updateOutputMesh()
+{
+    if (!needsUpdate)
+        return;
+    outputMesh.clear();
+    for (auto &wall : walls)
     {
-        auto wallMesh = wall.GetPolygonMesh(); // Too much copying probably
-        mesh.insert(mesh.end(), wallMesh.begin(), wallMesh.end());
+        const auto &wallPolygonMesh = wall.GetPolygonMesh();
+        outputMesh.insert(outputMesh.end(),
+                          wallPolygonMesh.begin(), wallPolygonMesh.end());
     }
     // TODO: append ceiling and floor
-    return mesh;
+    needsUpdate = false;
 }
